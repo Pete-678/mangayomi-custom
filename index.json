@@ -42,5 +42,27 @@
     "additionalParams": "",
     "sourceCodeLanguage": 1,
     "notes": "僅 zh-TW；已實測取得列表及還原指定章節全部 48 頁。需先載入整章，首次開啟較慢；手機 App 仍待實測。"
+  },
+  {
+    "name": "拷貝漫畫（修正版）",
+    "id": 1745306793,
+    "baseUrl": "https://www.mangacopy.com",
+    "lang": "zh",
+    "typeSource": "single",
+    "iconUrl": "https://raw.githubusercontent.com/kodjodevf/mangayomi-extensions/main/javascript/icon/zh.copymanga.png",
+    "dateFormat": "",
+    "dateFormatLocale": "",
+    "isNsfw": false,
+    "hasCloudflare": false,
+    "sourceCodeUrl": "https://raw.githubusercontent.com/Pete-678/mangayomi-custom/f4a841b9f2c829ea9b9c85758bf32b63db4549e6/copymanga-fixed.js",
+    "apiUrl": "https://api.mangacopy.com",
+    "version": "0.1.0",
+    "isManga": true,
+    "itemType": 0,
+    "isFullData": false,
+    "appMinVerReq": "0.5.0",
+    "additionalParams": "",
+    "sourceCodeLanguage": 1,
+    "notes": "修正熱門／最新的請求標頭、中文解析及 API 錯誤訊息。實際網站閱讀待確認；不保證每部作品內文均為繁體。"
   }
 ]
