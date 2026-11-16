@@ -32,15 +32,15 @@
     "dateFormatLocale": "",
     "isNsfw": false,
     "hasCloudflare": false,
-    "sourceCodeUrl": "https://raw.githubusercontent.com/Pete-678/mangayomi-custom/main/mangamillion-tw.js",
+    "sourceCodeUrl": "https://raw.githubusercontent.com/Pete-678/mangayomi-custom/6cf2f71f2430480c26a1b0a99c8929fce5839541/mangamillion-tw.js",
     "apiUrl": "https://api.mangamillion.shueisha.co.jp",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "isManga": true,
     "itemType": 0,
     "isFullData": false,
     "appMinVerReq": "0.6.35",
     "additionalParams": "",
     "sourceCodeLanguage": 1,
-    "notes": "僅 zh-TW；手機 App 完整流程待驗證。開啟章節時會先下載並還原圖片，首次載入可能較慢。"
+    "notes": "僅 zh-TW；已實測取得列表及還原指定章節全部 48 頁。需先載入整章，首次開啟較慢；手機 App 仍待實測。"
   }
 ]
