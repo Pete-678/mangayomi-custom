@@ -13,6 +13,7 @@ https://raw.githubusercontent.com/Pete-678/mangayomi-custom/main/index.json
 | 漫畫人（測試版） | 0.1.0 | 既有來源 |
 | MANGA MILLION（繁體中文・測試版） | 0.1.2 | 固定 zh-TW，排除簡體及香港中文 |
 | 拷貝漫畫（修正版） | 0.1.1 | 修正舊來源請求與文字處理；網站閱讀待確認 |
+| MANGA Plus（英文版） | 0.1.0 | 固定英文，僅列官網目前可讀章節 |
 
 ## MANGA MILLION 使用方式
 
@@ -70,3 +71,31 @@ https://raw.githubusercontent.com/Pete-678/mangayomi-custom/main/index.json
 **尚未完成真實網站端到端閱讀測試。** 使用者已確認 0.1.0 列表及封面可顯示，但作品頁章節解碼發生錯誤。本次終端環境的 API 仍回傳 Site Unavailable HTML，因此目前不能宣稱已在手機完整讀取《我獨自升級》。
 
 漫畫圖片的簡繁版本由原站提供，沒有可靠語言欄位可保證全部繁體。不擷取或公開 Webview Cookie／Token。
+
+## MANGA Plus（英文版）0.1.0
+
+在原本儲存庫重新整理擴充套件清單，啟用 English／英文篩選，安裝「MANGA Plus（英文版）」。需要 Mangayomi 0.6.35 以上及 data URI 圖片支援。
+
+- 固定英文（API lang/clang=eng，作品 language=0），不自動切換其他語言。
+- 提供英文熱門排行榜、最新更新、作品／作者搜尋、作者與簡介、分類及可讀章節。
+- 僅列出官網仍提供的章節；不包含已過期或僅 App／訂閱方案提供的章節，因此部分作品不會列出全話。
+- 章節圖片使用伺服器當次回應的參數還原，保留頁序，以 data URI 提供給原生閱讀器。
+- 開啟章節會先下載並處理整章，首次載入可能較慢，長章節會使用較多記憶體。
+- 不需要個人帳號、Cookie 或自行提供 Token。匿名工作階段識別碼在執行時產生，圖片閱讀憑證在執行時取得，均未內嵌到公開程式或清單。
+
+### 驗證
+
+2026-11-16，實際執行同一份 JavaScript 擴充程式，使用 Python HTTP 適配器對照 Mangayomi Client 的二進位字串回應：
+
+- 英文熱門排行榜 100 筆。
+- 英文最新更新 76 筆。
+- 搜尋 One Piece 得到英文作品。
+- One Piece 詳情取得 6 筆目前可讀章節。
+- 第 001 話全部 53 頁下載並還原為 JPEG data URI，保持原始頁序。
+- 另以獨立 Python 解析與 Pillow 驗證第 1、27、53 頁，均 HTTP 200，JPEG 尺寸 1080×1620。
+
+離線回歸驗證：英文過濾與去重、首頁特色更新、搜尋快取、過期章節排除、非英文拒絕、無效二進位回應及圖片還原。
+
+**尚未在使用者手機的 Mangayomi App 內完成實測。** 本次終端完整測試約 198 秒，每次 HTTP 請求各自啟動 Python 程序，不代表手機實際速度。若出現錯誤，請回報版本及錯誤畫面，不要提供 Cookie、密碼或 Token。
+
+通訊格式參考現行 MANGA Plus 網站及 keiyoushi/extensions-source 的 MANGA Plus Dto.kt 與 API 路徑；JavaScript 實作為獨立來源，不依賴外部 JavaScript 載入。
