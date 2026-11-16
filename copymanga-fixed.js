@@ -12,7 +12,7 @@ const mangayomiSources = [{
     "typeSource": "single",
     "itemType": 0,
     "isNsfw": false,
-    "version": "0.1.0",
+    "version": "0.1.1",
     "dateFormat": "",
     "dateFormatLocale": "",
     "pkgPath": "copymanga-fixed.js"
@@ -168,58 +168,139 @@ const mangayomiSources = [{
       return await this.getManga(`/api/v3/comics?free_type=1&limit=16&offset=${(page-1)*16}&theme=${type}&top=${region}&ordering=${sort}&_update=true`);
     }
   
+    comicPath(url) {
+      const path = String(url).split('|')[0].split('?')[0].replace(/^https?:\/\/[^/]+\/(?:h5\/)?comic\//, '').replace(/^\/(?:h5\/)?comic\//, '').replace(/\/$/, '');
+      if (!/^[a-zA-Z0-9_-]+$/.test(path)) throw new Error('作品網址格式不正確');
+      return path;
+    }
+
+    async decodedJson(value, label) {
+      if (value && typeof value === 'object') return value;
+      if (typeof value !== 'string' || !value.length) throw new Error(label+'資料為空');
+      const trimmed=value.replace(/^\uFEFF/, '').trim();
+      if (trimmed[0]==='{' || trimmed[0]==='[') {
+        try {return JSON.parse(trimmed);} catch (_) {throw new Error(label+'回傳的 JSON 不完整');}
+      }
+      let decoded;
+      try {decoded=await this.decode(trimmed);} catch (_) {throw new Error(label+'解碼失敗');}
+      try {
+        let result=JSON.parse(String(decoded).replace(/^\uFEFF/, '').trim());
+        if (typeof result==='string') result=JSON.parse(result);
+        return result;
+      } catch (_) {throw new Error(label+'解碼後不是有效 JSON，網站可能已調整資料格式');}
+    }
+
+    async apiChapters(path, groups) {
+      let entries=[];
+      if (Array.isArray(groups)) entries=groups.map(g=>({key:g.path_word || g.path || 'default',name:g.name || '',count:g.count}));
+      else if (groups && typeof groups==='object') entries=Object.keys(groups).map(key=>({key:groups[key].path_word || key,name:groups[key].name || '',count:groups[key].count}));
+      if (!entries.length) entries=[{key:'default',name:''}];
+      const episodes=[],seen={};
+      const limit=100;
+      for (const group of entries) {
+        if (group.count===0) continue;
+        let offset=0;
+        while (true) {
+          const result=await this.requestJson(this.source.apiUrl+'/api/v3/comic/'+encodeURIComponent(path)+'/group/'+encodeURIComponent(group.key)+'/chapters?limit='+limit+'&offset='+offset+'&platform=1',this.reqHeaders());
+          const data=result.results;
+          if (!data || !Array.isArray(data.list)) throw new Error('章節 API 未回傳章節列表');
+          let added=0;
+          for (const ch of data.list) {
+            const id=ch.uuid || ch.id;
+            if (!id) throw new Error('章節 API 未提供章節識別碼');
+            if (seen[id]) continue;
+            seen[id]=true;added++;
+            const prefix=group.key!=='default' && group.name ? '['+this.stringUTF8(group.name)+'] ' : '';
+            episodes.push({name:prefix+this.stringUTF8(ch.name || ch.title || '未命名章節'),url:path+'|'+id});
+          }
+          if (!data.list.length) break;
+          if (!added) throw new Error('章節 API 重複回傳同一分頁，已停止避免漏章');
+          offset+=data.list.length;
+          const total=data.total==null ? NaN : Number(data.total);
+          if (Number.isFinite(total) && offset>=total) break;
+          if (!Number.isFinite(total) && data.list.length<limit) break;
+        }
+      }
+      if (!episodes.length) throw new Error('章節 API 沒有可讀取章節');
+      return episodes.reverse();
+    }
+
+    async webChapters(path) {
+      const payload=await this.requestJson(this.source.baseUrl+'/comicdetail/'+encodeURIComponent(path)+'/chapters',this.browserHeaders());
+      const data=await this.decodedJson(payload.results,'網頁章節清單');
+      const groups=data.groups || {};
+      const result=[],seen={};
+      for (const key of Object.keys(groups)) {
+        for (const ch of groups[key].chapters || []) {
+          const id=ch.id || ch.uuid;
+          if (!id || seen[id]) continue;
+          seen[id]=true;
+          result.push({name:this.stringUTF8(ch.name || ch.title || '未命名章節'),url:path+'|'+id});
+        }
+      }
+      if (!result.length) throw new Error('網頁備援沒有取得章節');
+      return result.reverse();
+    }
+
+    browserHeaders() {
+      return {'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1','Referer':this.source.baseUrl+'/'};
+    }
+
     async getDetail(url) {
-      url = url.substringAfter("/comic/");
-      const payload = await this.requestJson(this.source.apiUrl + `/api/v3/comic2/${url}`, this.reqHeaders());
-      const data = payload.results.comic;
-      if (!data) throw new Error('拷貝漫畫作品資料格式已變更');
-      const title = this.stringUTF8(data["name"]);
-      const cover = data["cover"];
-      const desc = this.stringUTF8(data["brief"]);
-      const author_ = [];
-      for (const a of data["author"]) {
-        author_.push(this.stringUTF8(a["name"]));
+      const path=this.comicPath(url);
+      const payload=await this.requestJson(this.source.apiUrl+'/api/v3/comic2/'+encodeURIComponent(path)+'?platform=1',this.reqHeaders());
+      const data=payload.results.comic;
+      if (!data) throw new Error('作品詳情 API 沒有回傳作品');
+      let episodes;
+      try {episodes=await this.apiChapters(path,payload.results.groups);}
+      catch (apiError) {
+        try {episodes=await this.webChapters(path);}
+        catch (webError) {throw new Error('章節載入失敗。API：'+apiError.message+'；網頁備援：'+webError.message);}
       }
-      const author = author_.join(",");
-      const status = data["status"]["value"];
-      const genres = data["theme"].map(e => this.stringUTF8(e["name"]));
-      const chapters = [];
-      const chapterPayload = await this.requestJson(this.source.baseUrl + `/comicdetail/${url}/chapters`, {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
-      });
-      const ch_text = chapterPayload.results;
-      const chapter_datas = JSON.parse(this.decode(ch_text));
-      for (const ch of chapter_datas["groups"]["default"]["chapters"]) {
-        chapters.push({
-          name: ch["name"],
-          url: url + "|" + ch["id"]
-        });
-      }
-      chapters.reverse();
       return {
-        name: title,
-        imageUrl: cover,
-        description: desc,
-        author: author,
-        status: status,
-        genre: genres,
-        episodes: chapters,
-        link: "/comic/" + url
+        name:this.stringUTF8(data.name),imageUrl:data.cover || '',description:this.stringUTF8(data.brief || ''),
+        author:(data.author || []).map(a=>this.stringUTF8(a.name)).join(','),
+        status:data.status && data.status.value!=null ? data.status.value : 5,
+        genre:(data.theme || []).map(t=>this.stringUTF8(t.name)),episodes,link:'/comic/'+path
+      };
+    }
+
+    orderImages(chapter) {
+      const contents=chapter && chapter.contents;
+      if (!Array.isArray(contents) || !contents.length) throw new Error('圖片 API 沒有回傳圖片清單');
+      const urls=contents.map(x=>typeof x==='string'?x:x.url);
+      if (urls.some(x=>typeof x!=='string' || !/^https?:\/\//.test(x))) throw new Error('圖片 API 回傳的網址格式不正確');
+      const words=chapter.words;
+      if (!Array.isArray(words) || !words.length) return urls;
+      if (words.length!==urls.length) throw new Error('圖片頁碼數量與圖片數量不一致');
+      const result=new Array(urls.length),seen={};
+      for (let i=0;i<words.length;i++) {
+        const page=Number(words[i]);
+        if (!Number.isInteger(page) || page<0 || page>=urls.length || seen[page]) throw new Error('圖片頁碼資料格式已變更');
+        seen[page]=true;result[page]=urls[i];
+      }
+      return result;
+    }
+
+    async getPageList(url) {
+      const parts=String(url).split('|'),path=this.comicPath(parts[0]),id=parts[1];
+      if (!id || !/^[a-zA-Z0-9_-]+$/.test(id)) throw new Error('章節網址格式不正確');
+      try {
+        const payload=await this.requestJson(this.source.apiUrl+'/api/v3/comic/'+encodeURIComponent(path)+'/chapter2/'+encodeURIComponent(id)+'?platform=1',this.reqHeaders());
+        return this.orderImages(payload.results.chapter);
+      } catch (apiError) {
+        try {
+          const html=await this.requestText(this.source.baseUrl+'/comic/'+encodeURIComponent(path)+'/chapter/'+encodeURIComponent(id),this.browserHeaders());
+          const match=html.match(/contentKey\s*=\s*["']([^"']+)["']/);
+          if (!match) throw new Error('網頁沒有提供圖片清單');
+          const decoded=await this.decodedJson(match[1],'網頁圖片清單');
+          const images=Array.isArray(decoded)?decoded:decoded.contents;
+          if (!Array.isArray(images) || !images.length) throw new Error('網頁圖片清單為空');
+          return this.orderImages({contents:images});
+        } catch (webError) {throw new Error('圖片載入失敗。API：'+apiError.message+'；網頁備援：'+webError.message);}
       }
     }
-  
-    async getPageList(url) {
-      const urls = url.split("|");
-      const html = await this.requestText(this.source.baseUrl + `/comic/${urls[0]}/chapter/${urls[1]}`, {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
-      });
-      const match = html.match(/contentKey\s*=\s*["']([^"']+)["']/);
-      if (!match) throw new Error('閱讀頁未提供圖片清單，可能需要網站驗證或來源已改版');
-      const img_text = match[1];
-      const results = JSON.parse(this.decode(img_text));
-      return results.map(e => e["url"]);
-    }
-  
+
     getFilterList() {
       return [{
           type: "type",
