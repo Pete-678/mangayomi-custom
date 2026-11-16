@@ -12,7 +12,7 @@ https://raw.githubusercontent.com/Pete-678/mangayomi-custom/main/index.json
 | --- | --- | --- |
 | 漫畫人（測試版） | 0.1.0 | 既有來源 |
 | MANGA MILLION（繁體中文・測試版） | 0.1.2 | 固定 zh-TW，排除簡體及香港中文 |
-| 拷貝漫畫（修正版） | 0.1.0 | 修正舊來源請求與文字處理；網站閱讀待確認 |
+| 拷貝漫畫（修正版） | 0.1.1 | 修正舊來源請求與文字處理；網站閱讀待確認 |
 
 ## MANGA MILLION 使用方式
 
@@ -53,20 +53,20 @@ https://raw.githubusercontent.com/Pete-678/mangayomi-custom/main/index.json
 
 可能限制：網站地區及存取限制、網站改版、App 的二進位 HTTP 或 data URI 支援差異、整章載入的時間與記憶體。回報問題請提供版本及錯誤畫面，不要傳送 Cookie、金鑰、密碼或 Token。
 
-## 拷貝漫畫（修正版）0.1.0
+## 拷貝漫畫（修正版）0.1.1
 
-這是獨立來源，不會覆寫其他儲存庫提供的「拷贝漫画」。重新整理本儲存庫後，啟用中文篩選，另外安裝「拷貝漫畫（修正版）」測試。
+這是獨立來源，不覆寫其他儲存庫的「拷贝漫画」。重新整理儲存庫後，在已安裝擴充套件將「拷貝漫畫（修正版）」更新至 0.1.1。若作品詳情曾顯示 0 章，請回作品頁下拉重新整理，以重新載入詳情。
 
-依 entityJY/mangayomi-extensions-eJ 的 copymanga.js 0.0.25 修改（Apache-2.0，見 LICENSE-copymanga.txt）：
+依 entityJY/mangayomi-extensions-eJ 的 copymanga.js 0.0.25 修改（Apache-2.0，見 LICENSE-copymanga.txt）。目前讀取方式：
 
-- 熱門及最新 API 補上原程式已定義、但原本漏傳的請求標頭。
-- 已經是 Unicode 的中文保留原文；只有位元組字串才嘗試 UTF-8 轉換。
-- 搜尋關鍵字編碼，空白搜尋採明確預設值。
-- 驗證 HTTP、JSON 及結果格式，Site Unavailable 會清楚回報。
-- 修正章節圖片 contentKey 擷取的貪婪比對，設定頁改為空設定清單。
+- 列表、搜尋及詳情使用 API，帶完整原來源定義的標頭。
+- 章節優先使用 /api/v3/comic/{path}/group/{group}/chapters，分組及分頁讀取，排除重複章節並偵測重複分頁。
+- 圖片優先使用 /api/v3/comic/{path}/chapter2/{id}，依 words 頁碼還原 contents 的閱讀順序。
+- 若 API 失敗，才嘗試網頁章節／圖片清單；等待非同步解密完成後，驗證 JSON 格式，解碼失敗會指出具體階段。
+- 保留 Unicode 中文、修正搜尋編碼及 JSON／HTTP 錯誤訊息。
 
-測試通過：以模擬 HTTP 回應驗證標頭、中文及錯誤編碼、搜尋特殊字元、作品詳情、AES 章節／圖片清單解碼、空結果、非 JSON 及 HTTP 錯誤。
+驗證：模擬 API 回應測試 102 筆章節、兩個分組及多個分頁、作者與簡介保留、圖片頁序、非同步解密備援、損壞資料及重複分頁。
 
-**尚未完成真實網站端到端閱讀測試。** 此測試環境的主站與 API 回傳 HTTP 200 的 Site Unavailable HTML，即使補上原來源的標頭亦然；目前不能確認這個修正是否足以解決手機端問題。使用者的 Webview 可開啟網站，也不代表原生 HTTP/API 可以讀取。此版本保留清楚錯誤供後續診斷，不會擷取或公開 Webview Cookie／Token。
+**尚未完成真實網站端到端閱讀測試。** 使用者已確認 0.1.0 列表及封面可顯示，但作品頁章節解碼發生錯誤。本次終端環境的 API 仍回傳 Site Unavailable HTML，因此目前不能宣稱已在手機完整讀取《我獨自升級》。
 
-漫畫圖片的簡繁版本由原站提供，沒有可靠語言欄位可供保證全部繁體。
+漫畫圖片的簡繁版本由原站提供，沒有可靠語言欄位可保證全部繁體。不擷取或公開 Webview Cookie／Token。
