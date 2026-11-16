@@ -54,15 +54,15 @@
     "dateFormatLocale": "",
     "isNsfw": false,
     "hasCloudflare": false,
-    "sourceCodeUrl": "https://raw.githubusercontent.com/Pete-678/mangayomi-custom/f4a841b9f2c829ea9b9c85758bf32b63db4549e6/copymanga-fixed.js",
+    "sourceCodeUrl": "https://raw.githubusercontent.com/Pete-678/mangayomi-custom/179481343f3c4ec2af15d67cf4ade352b5e32e5c/copymanga-fixed.js",
     "apiUrl": "https://api.mangacopy.com",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "isManga": true,
     "itemType": 0,
     "isFullData": false,
     "appMinVerReq": "0.5.0",
     "additionalParams": "",
     "sourceCodeLanguage": 1,
-    "notes": "修正熱門／最新的請求標頭、中文解析及 API 錯誤訊息。實際網站閱讀待確認；不保證每部作品內文均為繁體。"
+    "notes": "章節與圖片優先用 API；支援章節分頁及分組、圖片頁序，網頁解密作非同步備援。手機完整閱讀仍待確認。"
   }
 ]
