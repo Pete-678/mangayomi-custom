@@ -1,0 +1,24 @@
+[
+  {
+    "name": "漫畫人（測試版）",
+    "id": 1745306791,
+    "baseUrl": "https://www.manhuaren.com",
+    "lang": "zh",
+    "typeSource": "single",
+    "iconUrl": "https://www.manhuaren.com/favicon.ico",
+    "dateFormat": "",
+    "dateFormatLocale": "",
+    "isNsfw": false,
+    "hasCloudflare": false,
+    "sourceCodeUrl": "https://raw.githubusercontent.com/Pete-678/mangayomi-custom/main/manhuaren.js",
+    "apiUrl": "",
+    "version": "0.1.0",
+    "isManga": true,
+    "itemType": 0,
+    "isFullData": false,
+    "appMinVerReq": "0.5.0",
+    "additionalParams": "",
+    "sourceCodeLanguage": 1,
+    "notes": "實驗版本；未經 Mangayomi App 實測。"
+  }
+]
