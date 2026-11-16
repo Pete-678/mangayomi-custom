@@ -1,6 +1,6 @@
-// MANGA MILLION, Traditional Chinese only. Experimental v0.1.1.
+// MANGA MILLION, Traditional Chinese only. Experimental v0.1.2.
 // Device credentials and chapter image parameters are obtained at runtime only.
-const mangayomiSources = [{name:'MANGA MILLION（繁體中文・測試版）',lang:'zh',baseUrl:'https://mangamillion.shueisha.co.jp',apiUrl:'https://api.mangamillion.shueisha.co.jp',iconUrl:'https://mangamillion.shueisha.co.jp/favicon.ico',typeSource:'single',itemType:0,isNsfw:false,version:'0.1.1',dateFormat:'',dateFormatLocale:'',pkgPath:'mangamillion-tw.js'}];
+const mangayomiSources = [{name:'MANGA MILLION（繁體中文・測試版）',lang:'zh',baseUrl:'https://mangamillion.shueisha.co.jp',apiUrl:'https://api.mangamillion.shueisha.co.jp',iconUrl:'https://mangamillion.shueisha.co.jp/favicon.ico',typeSource:'single',itemType:0,isNsfw:false,version:'0.1.2',dateFormat:'',dateFormatLocale:'',pkgPath:'mangamillion-tw.js'}];
 
 function mmBytes(body) {
   const b = new Uint8Array(body.length);
@@ -106,7 +106,7 @@ class DefaultExtension extends MProvider {
   language='zh-TW';
   token=null;
   registration=null;
-  headers={'User-Agent':'Mozilla/5.0','Referer':'https://mangamillion.shueisha.co.jp/','Origin':'https://mangamillion.shueisha.co.jp'};
+  headers={'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1','Accept':'*/*','Accept-Language':'zh-TW,zh;q=0.9,en;q=0.8','Referer':'https://mangamillion.shueisha.co.jp/','Origin':'https://mangamillion.shueisha.co.jp'};
   get supportsLatest(){return true;}
   getHeaders(url){return {...this.headers};}
   async wire(path,params,token,post) {
@@ -116,7 +116,7 @@ class DefaultExtension extends MProvider {
     const headers={...this.headers};if(token)headers['Access-Token']=token;
     const client=new Client();
     const response=post?await client.post(url,headers):await client.get(url,headers);
-    if(response.statusCode<200||response.statusCode>=300)throw new Error('MANGA MILLION API HTTP '+response.statusCode+'；請先在來源內建瀏覽器確認網站是否可讀。');
+    if(response.statusCode<200||response.statusCode>=300)throw new Error('MANGA MILLION '+path+' HTTP '+response.statusCode+'；請先在來源內建瀏覽器確認網站是否可讀。');
     let m;
     try {m=mmProto(mmBytes(response.body));} catch(e){throw new Error('無法解析網站二進位回應：'+e.message);}
     if(mmNumber(m,1)!==0)throw new Error('MANGA MILLION 回應失敗（狀態 '+mmNumber(m,1)+'）。');
@@ -143,8 +143,6 @@ class DefaultExtension extends MProvider {
   async getDetail(url) {
     const id=this.titleId(url);
     const data=await this.api('/api/title_detail',{original_title_id:id},50);
-    const available=mmMessages(data,9).map(x=>mmText(x,3));
-    if(!available.includes(this.language))throw new Error('這部作品目前沒有繁體中文版');
     const title=mmMessage(data,1);
     const chapters=await this.api('/api/chapter_list',{original_title_id:id,translated_language:this.language},60);
     const seen={},episodes=[];
@@ -156,6 +154,7 @@ class DefaultExtension extends MProvider {
         episodes.push({name:'#'+num+(name?' '+name:''),url:this.base+'/zh-CN/title/'+id+'/chapter/'+cid});
       }
     }
+    if(!episodes.length)throw new Error('這部作品目前沒有可讀取的繁體章節');
     episodes.sort((a,b)=>b.name.localeCompare(a.name,undefined,{numeric:true}));
     return {name:mmText(title,2),author:mmText(title,3),description:mmText(title,7),imageUrl:mmText(title,1),genre:mmMessages(title,4).map(x=>mmText(x,2)),status:5,episodes};
   }
