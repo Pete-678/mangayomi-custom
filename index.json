@@ -20,5 +20,27 @@
     "additionalParams": "",
     "sourceCodeLanguage": 1,
     "notes": "實驗版本；未經 Mangayomi App 實測。"
+  },
+  {
+    "name": "MANGA MILLION（繁體中文・測試版）",
+    "id": 1745306792,
+    "baseUrl": "https://mangamillion.shueisha.co.jp",
+    "lang": "zh-Hant",
+    "typeSource": "single",
+    "iconUrl": "https://mangamillion.shueisha.co.jp/favicon.ico",
+    "dateFormat": "",
+    "dateFormatLocale": "",
+    "isNsfw": false,
+    "hasCloudflare": false,
+    "sourceCodeUrl": "https://raw.githubusercontent.com/Pete-678/mangayomi-custom/main/mangamillion-tw.js",
+    "apiUrl": "https://api.mangamillion.shueisha.co.jp",
+    "version": "0.1.0",
+    "isManga": true,
+    "itemType": 0,
+    "isFullData": false,
+    "appMinVerReq": "0.6.35",
+    "additionalParams": "",
+    "sourceCodeLanguage": 1,
+    "notes": "僅 zh-TW；手機 App 完整流程待驗證。開啟章節時會先下載並還原圖片，首次載入可能較慢。"
   }
 ]
