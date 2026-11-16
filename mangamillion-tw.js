@@ -1,6 +1,6 @@
-// MANGA MILLION, Traditional Chinese only. Experimental v0.1.0.
+// MANGA MILLION, Traditional Chinese only. Experimental v0.1.1.
 // Device credentials and chapter image parameters are obtained at runtime only.
-const mangayomiSources = [{name:'MANGA MILLION（繁體中文・測試版）',lang:'zh-Hant',baseUrl:'https://mangamillion.shueisha.co.jp',apiUrl:'https://api.mangamillion.shueisha.co.jp',iconUrl:'https://mangamillion.shueisha.co.jp/favicon.ico',typeSource:'single',itemType:0,isNsfw:false,version:'0.1.0',dateFormat:'',dateFormatLocale:'',pkgPath:'mangamillion-tw.js'}];
+const mangayomiSources = [{name:'MANGA MILLION（繁體中文・測試版）',lang:'zh',baseUrl:'https://mangamillion.shueisha.co.jp',apiUrl:'https://api.mangamillion.shueisha.co.jp',iconUrl:'https://mangamillion.shueisha.co.jp/favicon.ico',typeSource:'single',itemType:0,isNsfw:false,version:'0.1.1',dateFormat:'',dateFormatLocale:'',pkgPath:'mangamillion-tw.js'}];
 
 function mmBytes(body) {
   const b = new Uint8Array(body.length);
