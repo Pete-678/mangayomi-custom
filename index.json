@@ -64,5 +64,27 @@
     "additionalParams": "",
     "sourceCodeLanguage": 1,
     "notes": "章節與圖片優先用 API；支援章節分頁及分組、圖片頁序，網頁解密作非同步備援。手機完整閱讀仍待確認。"
+  },
+  {
+    "name": "MANGA Plus（英文版）",
+    "id": 1745306794,
+    "baseUrl": "https://mangaplus.shueisha.co.jp",
+    "lang": "en",
+    "typeSource": "single",
+    "iconUrl": "https://mangaplus.shueisha.co.jp/favicon.ico",
+    "dateFormat": "",
+    "dateFormatLocale": "",
+    "isNsfw": false,
+    "hasCloudflare": false,
+    "sourceCodeUrl": "https://raw.githubusercontent.com/Pete-678/mangayomi-custom/bf2c8db4ee6600462e33059562ced7d76972927e/mangaplus-en.js",
+    "apiUrl": "https://jumpg-webapi.tokyo-cdn.com/api",
+    "version": "0.1.0",
+    "isManga": true,
+    "itemType": 0,
+    "isFullData": false,
+    "appMinVerReq": "0.6.35",
+    "additionalParams": "",
+    "sourceCodeLanguage": 1,
+    "notes": "固定英文；僅列官網目前可讀章節。開啟章節會先下載並還原整章，首次載入較慢。手機 App 仍待實測。"
   }
 ]
