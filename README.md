@@ -1,2 +1,42 @@
-# mangayomi-custom
-Experimental Mangayomi source for Manhuaren.
+# Mangayomi 自訂來源
+
+儲存庫網址：
+
+```text
+https://raw.githubusercontent.com/Pete-678/mangayomi-custom/main/index.json
+```
+
+在 Mangayomi 新增儲存庫後重新整理擴充套件清單。
+
+| 來源 | 版本 | 範圍 |
+| --- | --- | --- |
+| 漫畫人（測試版） | 0.1.0 | 既有來源 |
+| MANGA MILLION（繁體中文・測試版） | 0.1.0 | 固定 zh-TW，排除簡體及香港中文 |
+
+## MANGA MILLION 使用方式
+
+1. 更新儲存庫清單，啟用繁體中文／中文語言篩選，安裝「MANGA MILLION（繁體中文・測試版）」。
+2. 先搜尋作品，或從熱門列表選擇作品。
+3. 測試案例：章魚噼的原罪，第 001 話。
+4. 開啟章節時會先下載並還原整章圖片，再交給 App 原生閱讀器，因此首次載入可能較慢，長篇章節會占用較多記憶體。
+
+本來源要求 App 0.6.35 以上；介面是以目前 Mangayomi 公開主分支的 JavaScript HTTP 及 data URI 圖片處理程式為依據，尚未確認每個發行版本均可使用。
+
+## 語言及圖片處理
+
+- 網站介面 service_language 使用 zh-CN；漫畫翻譯固定 translated_language=zh-TW。
+- 搜尋結果會再次檢查可用翻譯語言；章節只列出 FREE、SIMUL 群組。
+- 閱讀時再次檢查章節實際語言及作品 ID；不符合就停止，不回退到其他語言。
+- 使用網站公開網頁的匿名裝置註冊流程；不要求帳號、Cookie 或使用者 Token。
+- 匿名裝置憑證及每章圖片參數只在 App 執行時取得，保存在執行記憶體，未內嵌於程式或公開清單。
+- 依網站回應還原 AES-CBC 圖片，以 data URI 交給 Mangayomi。程式不下載或執行第三方 JavaScript。
+
+## 驗證狀態（2026-11-16）
+
+已確認官方瀏覽器頁面可顯示繁體《章魚噼的原罪》第 001 話（48 頁）；抽查頁面已載入的前 3 張圖片可正常顯示。
+
+擴充程式離線測試：用獨立 Node crypto 作為標準，驗證 AES-128/192/256 共 15 組測例；8 組 Base64 邊界測例；Protobuf 回應解析；模擬 48 頁下載還原流程；非繁體語言、錯誤作品 ID、缺譯章節排除及註冊重用。
+
+**尚未在 Mangayomi App 內完成端到端實測。** 本次終端測試環境對匿名裝置註冊回傳 HTTP 403，因此離線測試成功不代表手機 API 存取已確認。若 App 也顯示 403，請回報完整錯誤畫面，不要傳送 Cookie、金鑰、密碼或 Token。
+
+可能限制：網站地區及存取限制、網站改版、舊 App 的二進位 HTTP 或 data URI 支援差異，以及整章圖片載入所需的時間與記憶體。
